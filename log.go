@@ -63,7 +63,7 @@ func (l *DefaultLogger) Panic(format string, v ...interface{}) {
 }
 
 // Prefix returns a new DefaultLogger with this prefix appended.
-func (l *DefaultLogger) Prefix(prefix string) *DefaultLogger {
+func (l *DefaultLogger) Prefix(prefix string) Logger {
 	if l.prefix == "" {
 		return &DefaultLogger{prefix: prefix}
 	}
@@ -95,6 +95,6 @@ func (n *NullLogger) Panic(format string, v ...interface{}) {
 
 // Prefix returns a pointer to the NullLogger and discards the
 // provided prefix.
-func (n *NullLogger) Prefix(prefix string) *NullLogger {
+func (n *NullLogger) Prefix(prefix string) Logger {
 	return n
 }
