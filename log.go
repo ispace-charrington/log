@@ -78,10 +78,15 @@ func (l *DefaultLogger) Must(message string, err error) {
 
 // Prefix returns a new DefaultLogger with this prefix appended.
 func (l *DefaultLogger) Prefix(prefix string) Logger {
+	nl := &DefaultLogger{Trace: l.Trace}
+
 	if l.prefix == "" {
-		return &DefaultLogger{prefix: prefix}
+		nl.prefix = prefix
+	} else {
+		nl.prefix = fmt.Sprintf("%s:%s", l.prefix, prefix)
 	}
-	return &DefaultLogger{prefix: fmt.Sprintf("%s:%s", l.prefix, prefix)}
+
+	return nl
 }
 
 // A NullLogger discards all Info and Warning logs, and simply
