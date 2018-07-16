@@ -10,6 +10,7 @@ type Logger interface {
 	Info(format string, v ...interface{})
 	Warning(format string, v ...interface{})
 	Panic(format string, v ...interface{})
+	Must(message string, err error)
 	Prefix(prefix string) Logger
 }
 
@@ -18,6 +19,7 @@ type Logger interface {
 // writes the timestamped log data to stderr.
 type DefaultLogger struct {
 	prefix string
+	Trace  bool
 }
 
 // Default returns a logger suitable for writing to stderr.
@@ -62,6 +64,18 @@ func (l *DefaultLogger) Panic(format string, v ...interface{}) {
 	panic(t)
 }
 
+// Must will call l.Panic() if err is not nil, otherwise will
+// conditionally call l.Info() based on l.Trace
+func (l *DefaultLogger) Must(message string, err error) {
+	if err == nil {
+		if l.Trace {
+			l.Info("ok: %s")
+		}
+		return
+	}
+	l.Panic("Failed to %s: %v", message, err)
+}
+
 // Prefix returns a new DefaultLogger with this prefix appended.
 func (l *DefaultLogger) Prefix(prefix string) Logger {
 	if l.prefix == "" {
@@ -91,6 +105,13 @@ func (n *NullLogger) Warning(format string, v ...interface{}) {}
 // Panic formats the data into a string, then panics.
 func (n *NullLogger) Panic(format string, v ...interface{}) {
 	panic(fmt.Sprintf(format, v...))
+}
+
+// Must calls n.Panic() if err is not nil.
+func (n *NullLogger) Must(message string, err error) {
+	if err != nil {
+		n.Panic("Failed to %s: %v", message, err)
+	}
 }
 
 // Prefix returns a pointer to the NullLogger and discards the
